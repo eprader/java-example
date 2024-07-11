@@ -7,7 +7,35 @@ Diagrams: [Mermaid](https://mermaid.js.org/intro/)
 ---
 title: Transaction System with 2FA
 ---
+
 classDiagram
+    class BankAccount {
+        -IBAN : String
+        -owner : Customer
+        -balanceInCent : BigInteger
+
+        +getIBAN() String
+        +getOwner() Customer
+        +setOwner(owner : Customer)
+        +getBalanceInCent() BigInteger
+        +setBalanceInCent(balance : BigInteger)
+        +equals(o : Object) boolean
+        +hashCode() final int
+    }
+    BankAccount "1..1" -- "1..*" Customer : own
+    BankAccount -- CreditScore : decide credit limit
+
+    class BankingSystem {
+        -managedAccounts : List<BankAccount>
+        -transactionHistory : List<Transaction>
+
+        +transfer(amount : BigInteger, source : BankAccount, target : BankAccount)
+        +addBankAccount(account : BankAccount)
+        +removeBankAccount(account: BankAccount)
+        +getBankAccounts() List<BankAccount>
+    }
+    BankingSystem "0..*" --> "1..1" BankAccount : manage
+
     class Customer {
         -id : UUID
         -firstName : String
@@ -30,9 +58,9 @@ classDiagram
         +equals(o : Object) boolean
         +hashCode() final int
     }
-
     Customer "1..1" *-- "0..*" CreditScore : has
-    Customer "1..1" *-- "1..1" Authenticator : uses
+    Customer "1..1" *-- "1..1" Authenticator : use
+    Customer
 
     class CreditScore {
         <<enumeration>>
@@ -45,8 +73,17 @@ classDiagram
         <<interface>> 
         authenticateTransaction(transaction: Transaction)
     }
+    Authenticator "0..*" --> "0..*" Transaction : authenticate
+    Authenticator <|-- SingleFactorAuthenticator
+    Authenticator <|-- TwoFactorAuthenticator 
 
-    Authenticator "0..*" --> "0..*" Transaction : authenticates
+    class SingleFactorAuthenticator
+
+    note for SingleFactorAuthenticator "Implements a no-op as we assume the Customer is
+    logged in to perform  a transaction."
+
+    class TwoFactorAuthenticator
+    note for TwoFactorAuthenticator "Requires input from `stdin` to authenticate."
 
     class Transaction {
         -id : UUID
@@ -67,23 +104,10 @@ classDiagram
         +hashCode() final int
         +compareTo(T o) int
     }
+    Transaction "1..1" --o "o..n" BankingSystem : log
 
     note for Transaction "`authentication` field is `null` if not authenticated.
-    The authentication string contains the current datetime as well as the authentication method"
+    The authentication string contains the current 
+    datetime as well as the authentication method"
 
     note for Transaction "implements java.lang.Comparable interface and satisfies its contract"
-
-    class BankAccount {
-        -IBAN : String
-        -owner : Customer
-        -balanceInCent : BigInteger
-
-        +getIBAN() String
-        +getOwner() Customer
-        +setOwner(owner : Customer)
-        +getBalanceInCent() BigInteger
-        +setBalanceInCent(balance : BigInteger)
-        +equals(o : Object) boolean
-        +hashCode() final int
-    }
-```
