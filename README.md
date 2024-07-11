@@ -104,7 +104,7 @@ classDiagram
         +hashCode() final int
         +compareTo(T o) int
     }
-    Transaction "1..1" --o "o..n" BankingSystem : log
+    Transaction "1..1" --o "0..*" BankingSystem : log
 
     note for Transaction "`authentication` field is `null` if not authenticated.
     The authentication string contains the current 
