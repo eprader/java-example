@@ -26,13 +26,14 @@ classDiagram
     BankAccount -- CreditScore : decide credit limit
 
     class BankingSystem {
-        -managedAccounts : List~BankAccount~
+        -managedAccounts : Set~BankAccount~
         -transactionHistory : List~Transaction~
 
         +transfer(amount : BigInteger, source : BankAccount, target : BankAccount)
         +addBankAccount(account : BankAccount)
         +removeBankAccount(account: BankAccount)
-        +getBankAccounts() List~BankAccount~
+        +getManagedAccounts() Set~BankAccount~
+        +getTransactionHistory() List~Transaction~
     }
     BankingSystem "0..*" --> "1..1" BankAccount : manage
 
@@ -54,6 +55,7 @@ classDiagram
         +getCreditScore() CreditScore
         +setCreditScore(creditScore : CreditScore)
         +getAuthenticator() Authenticator
+        +setAuthenticator(authenticator : Authenticator)
         +toString() String
         +equals(o : Object) boolean
         +hashCode() final int
